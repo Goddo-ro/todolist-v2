@@ -55,11 +55,22 @@ app.get("/", function(req, res) {
 
 app.post("/", function(req, res){
   const itemName = req.body.newItem;
+  const listName = req.body.list;
 
   const newItem = new Item({name: itemName});
-  newItem.save();
 
-  res.redirect("/");
+  if (listName === "Today") {
+    newItem.save();
+    res.redirect("/");
+  } else {
+    List.find({name: listName}, function(err, foundList) {
+      if (!err) {
+        foundList[0].items.push(newItem);
+        foundList[0].save();
+        res.redirect("/" + listName);
+      }
+    })
+  }
 });
 
 app.get("/:customListName", function(req,res){
