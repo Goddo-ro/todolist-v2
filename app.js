@@ -28,6 +28,13 @@ const item3 = new Item({name: "<-- Hit this to delete an item."});
 
 const defaultItems = [item1, item2, item3];
 
+const listSchema = new mongoose.Schema({
+  name: String,
+  items: [itemsSchema]
+});
+
+const List = mongoose.model("List", listSchema);
+
 
 app.get("/", function(req, res) {
   Item.find(null, function(err, items) {
@@ -55,8 +62,22 @@ app.post("/", function(req, res){
   res.redirect("/");
 });
 
-app.get("/work", function(req,res){
-  res.render("list", {listTitle: "Work List", newListItems: workItems});
+app.get("/:customListName", function(req,res){
+  const customListName = req.params.customListName;
+
+  List.find({name: customListName}, function(err, items) {
+    if (!items.length) {
+      const list = new List({
+        name: customListName,
+        items: defaultItems
+      })
+      list.save();
+
+      res.redirect("/" + customListName);
+    } else {
+      res.render("list", {listTitle: customListName, newListItems: items[0].items});
+    }
+  })
 });
 
 app.get("/about", function(req, res){
