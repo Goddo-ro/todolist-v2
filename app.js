@@ -22,25 +22,24 @@ const itemsSchema = new mongoose.Schema({
 
 const Item = mongoose.model("Item", itemsSchema);
 
-// const item1 = new Item({name: "Welcome to your dotolist!"});
-// const item2 = new Item({name: "Hit the + button to add a new item."});
-// const item3 = new Item({name: "<-- Hit this to delete an item."});
-//
-// const defaultItems = [item1, item2, item3];
-//
-// Item.insertMany(defaultItems, function(err, res) {
-//   if (err) {
-//     console.log(err);
-//   } else {
-//     console.log(res);
-//   }
-// });
+const item1 = new Item({name: "Welcome to your dotolist!"});
+const item2 = new Item({name: "Hit the + button to add a new item."});
+const item3 = new Item({name: "<-- Hit this to delete an item."});
+
+const defaultItems = [item1, item2, item3];
 
 
 app.get("/", function(req, res) {
   Item.find(null, "name", function(err, items) {
-    if (err) {
-      console.log(err);
+    if (items.length === 0) {
+      Item.insertMany(defaultItems, function(err, res) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(res);
+        }
+      });
+      res.redirect("/");
     } else {
       res.render("list", {listTitle: "Today", newListItems: items});
     }
