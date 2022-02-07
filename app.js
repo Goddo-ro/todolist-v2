@@ -76,6 +76,11 @@ app.post("/", function(req, res){
 app.get("/:customListName", function(req,res){
   const customListName = req.params.customListName;
 
+  if (customListName === "Today") {
+    res.redirect("/");
+    return;
+  }
+
   List.find({name: customListName}, function(err, items) {
     if (!items.length) {
       const list = new List({
@@ -97,14 +102,23 @@ app.get("/about", function(req, res){
 
 app.post("/delete", function(req, res) {
   const checkedItemId = req.body.checkbox;
+  const listName = req.body.listName;
 
-  Item.findByIdAndRemove(checkedItemId, function(err) {
-    if (err) {
-      console.log(err);
-    }
-  })
+  if (listName === "Today") {
+    Item.findByIdAndRemove(checkedItemId, function(err) {
+      if (err) {
+        console.log(err);
+      }
+    })
 
-  res.redirect("/");
+    redirect("/");
+  } else {
+    List.findOneAndUpdate({name: listName}, {$pull: {items: {_id: checkedItemId}}}, function(err) {
+      if (!err) {
+        res.redirect("/" + listName);
+      }
+    })
+  }
 });
 
 app.listen(3000, function() {
