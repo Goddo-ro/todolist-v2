@@ -30,7 +30,7 @@ const defaultItems = [item1, item2, item3];
 
 
 app.get("/", function(req, res) {
-  Item.find(null, "name", function(err, items) {
+  Item.find(null, function(err, items) {
     if (items.length === 0) {
       Item.insertMany(defaultItems, function(err, res) {
         if (err) {
@@ -61,6 +61,18 @@ app.get("/work", function(req,res){
 
 app.get("/about", function(req, res){
   res.render("about");
+});
+
+app.post("/delete", function(req, res) {
+  const checkedItemId = req.body.checkbox;
+
+  Item.findByIdAndRemove(checkedItemId, function(err) {
+    if (err) {
+      console.log(err);
+    }
+  })
+
+  res.redirect("/");
 });
 
 app.listen(3000, function() {
